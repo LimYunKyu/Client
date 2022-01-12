@@ -15,7 +15,7 @@ private:
 	void ScreenResize();
 	void RenderBegin();
 	void RenderEnd();
-	
+	void ShowFPS();
 private:
 	WindowInfo					mWinfo;
 	ID3D11Device*				mDevice;

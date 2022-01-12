@@ -1,30 +1,26 @@
 #include "pch.h"
 #include "GameEngine.h"
 #include "SceneManager.h"
-
-GameEngine::~GameEngine()
-{
-	ReleaseCOM(mRenderTargetView);
-	ReleaseCOM(mDepthStencilView);
-	ReleaseCOM(mSwapChain);
-	ReleaseCOM(mDepthStencilBuffer);
-
-	if (mDeviceContext)
-		mDeviceContext->ClearState();
-	ReleaseCOM(mDeviceContext);
-	ReleaseCOM(mDevice);
-
-}
-
+#include "Timer.h"
+#include "InputManager.h"
+#include "TestScene.h"
 void GameEngine::Initialize(const WindowInfo& wInfo)
 {
 	mWinfo = wInfo;
+	Timer::GetInstance()->Init();
+	shared_ptr<TestScene> _scene = make_shared<TestScene>();
+	SceneManager::GetInstance()->SetScene(_scene);
 	InitializeDeviceAndSwapChain();
 	ScreenResize();
+
+
 }
 
 void GameEngine::Update()
 {
+
+	Timer::GetInstance()->Update();
+	ShowFPS();
 	SceneManager::GetInstance()->Update();
 
 }
@@ -166,6 +162,16 @@ void GameEngine::RenderEnd()
 	mSwapChain->Present(0, 0);
 }
 
+void GameEngine::ShowFPS()
+{
+	UINT32 fps = Timer::GetInstance()->GetFps();
+
+	WCHAR text[100] = L"";
+	::wsprintf(text, L"FPS : %d", fps);
+
+	::SetWindowText(mWinfo.hwnd, text);
+}
+
 
 
 void GameEngine::CallScreenResize(const WindowInfo& wInfo)
@@ -173,5 +179,19 @@ void GameEngine::CallScreenResize(const WindowInfo& wInfo)
 
 	mWinfo = wInfo;
 	ScreenResize();
+
+}
+
+GameEngine::~GameEngine()
+{
+	ReleaseCOM(mRenderTargetView);
+	ReleaseCOM(mDepthStencilView);
+	ReleaseCOM(mSwapChain);
+	ReleaseCOM(mDepthStencilBuffer);
+
+	if (mDeviceContext)
+		mDeviceContext->ClearState();
+	ReleaseCOM(mDeviceContext);
+	ReleaseCOM(mDevice);
 
 }
