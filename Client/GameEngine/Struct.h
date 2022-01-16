@@ -19,8 +19,7 @@ struct Vertex
 	XMFLOAT3 Pos;
 	XMFLOAT3 Normal;
 	XMFLOAT2 Tex;
-
-
+	
 
 };
 
@@ -95,3 +94,14 @@ struct TransformParams
 	XMMATRIX matWV;
 	XMMATRIX matWVP;
 };
+
+struct TEXTURE_ON {
+	int Tex0_On;
+	int Tex1_On;
+	int Tex2_On;
+	int Tex3_On;
+	int Tex4_On;
+
+
+};
+

@@ -22,11 +22,12 @@ public:
 	Object(OBJECT_TYPE Type) { mObjectType = Type; }
 
 public:
-	virtual void Initialize() = 0;
-	virtual void LateInitialize() = 0;
-	virtual void Update() = 0;
-	virtual void LateUpdate() = 0;
-	virtual void Render() = 0;
+	virtual void Initialize();
+	virtual void LateInitialize();
+	virtual void Update();
+	virtual void LateUpdate();
+	virtual void FinalUpdate();
+	virtual void Render();
 public:
 	OBJECT_TYPE GetObjectType() { return mObjectType; }
 

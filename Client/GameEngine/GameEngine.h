@@ -8,14 +8,22 @@ public:
 	void Update();
 	void Render();
 	void CallScreenResize(const WindowInfo& wInfo);
+	ID3D11Device* GetDevice() { return mDevice; }
+	ID3D11DeviceContext* GetDeviceContext() { return mDeviceContext; }
+	
+public:
+	WindowInfo GetWinfo() { return mWinfo; }
 
 private:
 
 	void InitializeDeviceAndSwapChain();
+	void CreateSampleState();
 	void ScreenResize();
 	void RenderBegin();
 	void RenderEnd();
 	void ShowFPS();
+
+	
 private:
 	WindowInfo					mWinfo;
 	ID3D11Device*				mDevice;
@@ -26,6 +34,7 @@ private:
 	ID3D11RenderTargetView*		mRenderTargetView;
 	ID3D11DepthStencilView*		mDepthStencilView;
 	D3D11_VIEWPORT				mViewPort;
+	ID3D11SamplerState*			g_pSamplerLinear = NULL;
 
 	IDXGIDevice*				mdxgiDevice;
 	IDXGIAdapter*				mdxgiAdapter;

@@ -2,10 +2,10 @@
 class Scene
 {
 public:
-	virtual void Initialize() = 0;
-	virtual void Update() = 0;
-	virtual void Render() = 0 ;
-
+	void Initialize();
+	void Update();
+	void Render();
+	virtual void LoadObject();
 
 public:
 	void AddGameObject(shared_ptr<class GameObject> gameobject) { mGameObjectVector.push_back(gameobject); }

@@ -7,12 +7,12 @@
 void GameEngine::Initialize(const WindowInfo& wInfo)
 {
 	mWinfo = wInfo;
+	InitializeDeviceAndSwapChain();
+	ScreenResize();
 	Timer::GetInstance()->Init();
 	shared_ptr<TestScene> _scene = make_shared<TestScene>();
 	SceneManager::GetInstance()->SetScene(_scene);
-	InitializeDeviceAndSwapChain();
-	ScreenResize();
-
+	InputManager::GetInstance()->Init(mWinfo.hwnd);
 
 }
 
@@ -22,7 +22,7 @@ void GameEngine::Update()
 	Timer::GetInstance()->Update();
 	ShowFPS();
 	SceneManager::GetInstance()->Update();
-
+	InputManager::GetInstance()->Update();
 }
 
 void GameEngine::Render()
@@ -33,6 +33,7 @@ void GameEngine::Render()
 
 	RenderEnd();
 }
+
 
 void GameEngine::InitializeDeviceAndSwapChain()
 {
@@ -102,6 +103,22 @@ void GameEngine::InitializeDeviceAndSwapChain()
 	mdxgiFactory->CreateSwapChain(mDevice, &sd, &mSwapChain);
 }
 
+void GameEngine::CreateSampleState()
+{
+
+	D3D11_SAMPLER_DESC sampDesc;
+	ZeroMemory(&sampDesc, sizeof(sampDesc));
+	sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	sampDesc.MinLOD = 0;
+	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
+	HRESULT hr = mDevice->CreateSamplerState(&sampDesc, &g_pSamplerLinear);
+
+}
+
 void GameEngine::ScreenResize()
 {
 	mSwapChain->ResizeBuffers(1, mWinfo.ClientWidth, mWinfo.ClientHeight, DXGI_FORMAT_R8G8B8A8_UNORM, 0);
@@ -152,6 +169,7 @@ void GameEngine::ScreenResize()
 void GameEngine::RenderBegin()
 {
 	XMVECTORF32 LightSteelBlue = { 0.69f, 0.77f, 0.87f, 1.0f };
+	mDeviceContext->PSSetSamplers(0, 1, &g_pSamplerLinear);
 	mDeviceContext->ClearRenderTargetView(mRenderTargetView, reinterpret_cast<const float*>(&Colors::LightSteelBlue));
 	mDeviceContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	mDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);

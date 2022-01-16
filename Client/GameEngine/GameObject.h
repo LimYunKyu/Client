@@ -11,9 +11,14 @@ public:
 	void LateInitialize();
 	void Update();
 	void LateUpdate();
+	void FinalUpdate();
 	void Render();
 public:
 	void AddComponent(shared_ptr<Component> component);
+	
+public:
+	shared_ptr<class Transform> GetTransform();
+	shared_ptr<class MeshRender> GetMeshRender();
 	
 
 protected:

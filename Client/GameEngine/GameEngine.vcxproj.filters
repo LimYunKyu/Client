@@ -25,6 +25,12 @@
     <Filter Include="Object\Resource">
       <UniqueIdentifier>{19b0d24a-fa70-478a-a9ab-d097ed2d06ea}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Object\Script">
+      <UniqueIdentifier>{cdc11cb7-54aa-4ffc-8d7d-2a637d51f8c6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="FX">
+      <UniqueIdentifier>{90c1c516-8fc2-4a56-b125-10128c30727d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -84,6 +90,24 @@
     <ClInclude Include="MonoBehaviour.h">
       <Filter>Object\Component</Filter>
     </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>Object\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader.h">
+      <Filter>Object\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>Object\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraScript.h">
+      <Filter>Object\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Library\Include\d3dx11effect.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Material.h">
+      <Filter>Object\Resource</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -134,5 +158,33 @@
     <ClCompile Include="MonoBehaviour.cpp">
       <Filter>Object\Component</Filter>
     </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>Object\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="Shader.cpp">
+      <Filter>Object\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture.cpp">
+      <Filter>Object\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="CameraScript.cpp">
+      <Filter>Object\Script</Filter>
+    </ClCompile>
+    <ClCompile Include="Material.cpp">
+      <Filter>Object\Resource</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="..\FX\default.fx">
+      <Filter>FX</Filter>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\FX\params.fx">
+      <Filter>FX</Filter>
+    </None>
+    <None Include="..\FX\utils.fx">
+      <Filter>FX</Filter>
+    </None>
   </ItemGroup>
 </Project>

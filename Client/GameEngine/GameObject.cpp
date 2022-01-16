@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "GameObject.h"
 #include "MonoBehaviour.h"
+#include "Transform.h"
+#include "MeshRender.h"
 
 GameObject::GameObject() : Object(OBJECT_TYPE::GAMEOBJECT)
 {
@@ -68,6 +70,21 @@ void GameObject::LateUpdate()
 	}
 }
 
+void GameObject::FinalUpdate()
+{
+	for (auto& component : mComponentArray)
+	{
+		if (component)
+			component->FinalUpdate();
+	}
+
+	for (auto& script : mScriptVector)
+	{
+		script->FinalUpdate();
+	}
+
+}
+
 void GameObject::Render()
 {
 	for (auto& component : mComponentArray)
@@ -98,6 +115,22 @@ void GameObject::AddComponent(shared_ptr<Component> component)
 	}
 
 
+}
+
+
+
+shared_ptr<class Transform> GameObject::GetTransform()
+{
+	int idx = static_cast<int>(COMPONENT_TYPE::TRANSFORM);
+	shared_ptr<Component> component = mComponentArray[idx];
+	return static_pointer_cast<Transform>(component);
+}
+
+shared_ptr<class MeshRender> GameObject::GetMeshRender()
+{
+	int idx = static_cast<int>(COMPONENT_TYPE::MESHRENDER);
+	shared_ptr<Component> component = mComponentArray[idx];
+	return static_pointer_cast<MeshRender>(component);
 }
 
 

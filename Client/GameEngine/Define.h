@@ -13,3 +13,5 @@ public:								\
 	{								\
 		static type instance;		\
 		return &instance;	}		
+
+#define SRVCOUNT static_cast<const int>(5)
