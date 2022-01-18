@@ -29,6 +29,7 @@ public:
 	XMVECTOR GetRight() { return mWorldMat.r[0]; }
 	XMVECTOR GetUp() { return mWorldMat.r[1]; }
 	XMVECTOR GetLook() { return mWorldMat.r[2]; }
+	float GetBoundingSphereRadius() { return max(max(mCurrentPos.x, mCurrentPos.y), mCurrentPos.z); }
 public:
 	XMMATRIX GetWorldMat() {return mWorldMat; }
 

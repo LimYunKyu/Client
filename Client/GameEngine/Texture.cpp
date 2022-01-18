@@ -6,6 +6,13 @@
 
 Texture::Texture() : Object(OBJECT_TYPE::TEXTURE)
 {
+	TexOn = {};
+}
+
+void Texture::Render()
+{
+
+	mMaterial.lock()->GetShader()->PushTextureData(mSRVArray,TexOn,CurrentTextureCount);
 }
 
 void Texture::CreateTexture(wstring path,int srvnum)
@@ -33,17 +40,37 @@ void Texture::CreateTexture(wstring path,int srvnum)
 	}
 
 
+
 	if (SUCCEEDED(hr))
 	{
-		
+		CurrentTextureCount++;
+
 		hr = CreateShaderResourceView(GEngine->GetDevice(),
 			image.GetImages(), image.GetImageCount(),
 			image.GetMetadata(), &(mSRVArray[srvnum]));
 
-		if (SUCCEEDED(hr))
+		switch (srvnum)
 		{
-			mMaterial.lock()->GetShader()->PushTextureData(mSRVArray[srvnum], srvnum);
 
+		case 0:
+			TexOn.Tex0_On = 1;
+			break;
+		case 1:
+			TexOn.Tex1_On = 1;
+			break;
+		case 2:
+			TexOn.Tex2_On = 1;
+			break;
+		case 3:
+			TexOn.Tex3_On = 1;
+			break;
+		case 4:
+			TexOn.Tex4_On = 1;
+			break;
+		default:
+			break;
 		}
 	}
+
+	
 }

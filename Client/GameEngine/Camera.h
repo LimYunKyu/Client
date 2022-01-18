@@ -1,5 +1,6 @@
 #pragma once
 #include "Component.h"
+#include "Frustum.h"
 
 enum class PROJECTION_TYPE
 {
@@ -56,6 +57,7 @@ private:
     static XMMATRIX ProjectionMatrix;
 
     PROJECTION_TYPE mProjectionType = PROJECTION_TYPE::PERSPECTIVE;
+    Frustum _frustum;
 };
 
 

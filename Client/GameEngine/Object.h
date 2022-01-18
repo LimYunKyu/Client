@@ -8,6 +8,7 @@ enum class OBJECT_TYPE
 	MESH,
 	SHADER,
 	TEXTURE,
+	NONE,
 	END
 };
 

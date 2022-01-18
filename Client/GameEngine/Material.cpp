@@ -13,6 +13,7 @@ void Material::Render()
 {
 	
 	mShader->Render();
+	mTexture->Render();
 	
 
 }
@@ -24,8 +25,12 @@ void Material::SetShader(shared_ptr<class Shader> shader)
 
 }
 
-void Material::SetTexture(shared_ptr<class Texture> texture)
+void Material::SetTexture(shared_ptr<class Texture> texture,int idx)
 {
+	/*mTextureArray[idx] = texture;
+	mTextureArray[idx]->SetMaterial(shared_from_this());*/
+
 	mTexture = texture;
 	mTexture->SetMaterial(shared_from_this());
+	
 }

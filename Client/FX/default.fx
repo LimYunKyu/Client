@@ -5,9 +5,9 @@ struct VertexIn
 {
 	
 	float3 pos    : POSITION;
-	float3 normal : NORMAL;
 	float2 Tex    : TEXCOORD;
-	
+	float3 normal : NORMAL;
+	float3 tangent: TANGENT;
 };
 
 struct VertexOut
@@ -16,6 +16,8 @@ struct VertexOut
 	float4 pos  : SV_POSITION;
 	float3 viewPos : POSITION;
 	float3 viewNormal : NORMAL;
+	float3 viewTangent : TANGENT;
+	float3 viewBinormal : BINORMAL;
 	
 };
 
@@ -23,6 +25,10 @@ VertexOut VS(VertexIn vin)
 {
 	VertexOut vout = (VertexOut)0;
 	vout.pos = mul(float4(vin.pos, 1.0f), g_TransformParmas.g_matWVP);
+	vout.viewPos = mul(float4(vin.pos, 1.f), g_TransformParmas.g_matWV).xyz;
+	vout.viewNormal = normalize(mul(float4(vin.normal, 0.f), g_TransformParmas.g_matWV).xyz);
+	vout.viewTangent = normalize(mul(float4(vin.tangent, 0.f), g_TransformParmas.g_matWV).xyz);
+	vout.viewBinormal = normalize(cross(vout.viewTangent, vout.viewNormal));
 	vout.Tex = vin.Tex;
 	
 
@@ -31,18 +37,46 @@ VertexOut VS(VertexIn vin)
 
 float4 PS(VertexOut pin) : SV_Target
 {
-	float4 color = float4(1.0f,1.0f,1.0f,1.0f);
-	float4 texColor = float4(1.0f, 1.0f, 1.0f, 1.0f);
+	float4 color = float4(1.f, 1.f, 1.f,1.f);
+	
+	
 
+	float3 viewNormal = pin.viewNormal;
 
 	if (g_Tex_On.g_tex_0_on)
 	{
-	   texColor = g_tex_0.Sample(samLinear, pin.Tex) * color;
-	   color = texColor;
+		color = g_tex_0.Sample(samLinear, pin.Tex);
 	}
 	
+	if (g_Tex_On.g_tex_1_on)
+	{
+		float3 tangentSpaceNormal = g_tex_1.Sample(samLinear, pin.Tex);
 
-	return texColor;
+		tangentSpaceNormal = (tangentSpaceNormal - 0.5f) * 2.f;
+
+		float3x3 matTBN = { pin.viewTangent, pin.viewBinormal, pin.viewNormal };
+		viewNormal = normalize(mul(tangentSpaceNormal, matTBN));
+	}
+
+
+	LightColor totalColor = (LightColor)0.f;
+
+	for (int i = 0; i < g_lightParams.g_lightCount; ++i)
+	{
+		 LightColor color = CalculateLightColor(i, viewNormal, pin.viewPos);
+		 totalColor.diffuse += color.diffuse;
+		 totalColor.ambient += color.ambient;
+		 totalColor.specular += color.specular;
+	}
+
+	color.xyz = (totalColor.diffuse.xyz * color.xyz)
+		+ totalColor.ambient.xyz * color.xyz
+		+ totalColor.specular.xyz;
+
+	/*color = texColor * color;*/
+
+
+	return color;
 }
 
 technique11 DefaultTech

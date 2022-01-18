@@ -108,6 +108,12 @@
     <ClInclude Include="Material.h">
       <Filter>Object\Resource</Filter>
     </ClInclude>
+    <ClInclude Include="ResourceManager.h">
+      <Filter>Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="Frustum.h">
+      <Filter>Object\Component</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -173,9 +179,18 @@
     <ClCompile Include="Material.cpp">
       <Filter>Object\Resource</Filter>
     </ClCompile>
+    <ClCompile Include="ResourceManager.cpp">
+      <Filter>Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="Frustum.cpp">
+      <Filter>Object\Component</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\FX\default.fx">
+      <Filter>FX</Filter>
+    </FxCompile>
+    <FxCompile Include="..\FX\skybox.fx">
       <Filter>FX</Filter>
     </FxCompile>
   </ItemGroup>

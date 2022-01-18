@@ -9,6 +9,7 @@ void GameEngine::Initialize(const WindowInfo& wInfo)
 	mWinfo = wInfo;
 	InitializeDeviceAndSwapChain();
 	ScreenResize();
+	CreateSampleState();
 	Timer::GetInstance()->Init();
 	shared_ptr<TestScene> _scene = make_shared<TestScene>();
 	SceneManager::GetInstance()->SetScene(_scene);
@@ -168,11 +169,31 @@ void GameEngine::ScreenResize()
 
 void GameEngine::RenderBegin()
 {
+	/*check = 1;
+
+	D3D11_BUFFER_DESC bd;
+	ZeroMemory(&bd, sizeof(bd));
+	bd.Usage = D3D11_USAGE_DEFAULT;
+	bd.ByteWidth = sizeof(int);
+	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	bd.CPUAccessFlags = 0;
+	D3D11_SUBRESOURCE_DATA InitData;
+	ZeroMemory(&InitData, sizeof(InitData));
+	InitData.pSysMem = &check;*/
+
+	//mDevice->CreateBuffer(&bd, NULL, &g_buffer);
+
+
+
+
+
+
 	XMVECTORF32 LightSteelBlue = { 0.69f, 0.77f, 0.87f, 1.0f };
 	mDeviceContext->PSSetSamplers(0, 1, &g_pSamplerLinear);
 	mDeviceContext->ClearRenderTargetView(mRenderTargetView, reinterpret_cast<const float*>(&Colors::LightSteelBlue));
 	mDeviceContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	mDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	//mDeviceContext->VSSetConstantBuffers(0, 1, &g_buffer);
 }
 
 void GameEngine::RenderEnd()

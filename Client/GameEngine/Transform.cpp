@@ -49,6 +49,10 @@ void Transform::LateUpdate()
 void Transform::FinalUpdate()
 {
 	
+}
+
+void Transform::Render()
+{
 	if (!mGameObject.lock()->GetMeshRender())
 		return;
 
@@ -60,12 +64,13 @@ void Transform::FinalUpdate()
 	params.matWV = params.matWorld * params.matView;
 	params.matWVP = params.matWorld * params.matView * params.matProjection;
 
+
+	XMVECTOR te = { mCurrentPos.x,mCurrentPos.y,mCurrentPos.z,1 };
+	XMVECTOR test = XMVector4Transform(te, params.matWVP);
+	
+
+	
 	mGameObject.lock()->GetMeshRender()->GetMaterial()->GetShader()->PushTransformData(params);
-}
-
-void Transform::Render()
-{
-
 
 }
 

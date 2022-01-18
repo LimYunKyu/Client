@@ -2,11 +2,23 @@
 #include "Shader.h"
 #include "GameEngine.h"
 
-Shader::Shader(const wstring& path, const LPCSTR tech_name) : Object(OBJECT_TYPE::SHADER)
+
+
+Shader::Shader(const wstring& path, const LPCSTR tech_name, RASTERIZER_TYPE rtype, DEPTH_STENCIL_TYPE dtype) : Object(OBJECT_TYPE::SHADER)
 {
+
+	
+	
+	mShaderInfo.rasterizerType = rtype;
+	mShaderInfo.depthStencilType = dtype;
 	CreateShaderFile(path, tech_name);
 	CreateVertexLayout();
 	TexOn = {};
+}
+
+void Shader::Render()
+{
+	BindDepthStencilAndRasterizerState();
 }
 
 
@@ -34,7 +46,7 @@ void Shader::CreateShaderFile(const wstring& path, const LPCSTR tech_name)
 	mSRVariableArray[2] = mFX->GetVariableByName("g_tex_2")->AsShaderResource();
 	mSRVariableArray[3] = mFX->GetVariableByName("g_tex_3")->AsShaderResource();
 	mSRVariableArray[4] = mFX->GetVariableByName("g_tex_4")->AsShaderResource();
-
+	mLightParams = mFX->GetVariableByName("g_lightParams");
 
 }
 
@@ -44,8 +56,9 @@ void Shader::CreateVertexLayout()
 	{
 
 		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
-		{"NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
-		{"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{"NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{"TANGENT",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0},
 
 	};
 
@@ -53,10 +66,13 @@ void Shader::CreateVertexLayout()
 	D3DX11_PASS_DESC passDesc;
 	HRESULT hr =  mTech->GetPassByIndex(0)->GetDesc(&passDesc);
 
-	GEngine->GetDevice()->CreateInputLayout(vertexDesc, 3, passDesc.pIAInputSignature,
+	GEngine->GetDevice()->CreateInputLayout(vertexDesc, 4, passDesc.pIAInputSignature,
 		passDesc.IAInputSignatureSize, &mInputLayout);
 
-	//GEngine->GetDeviceContext()->IASetInputLayout(mInputLayout);
+	
+	CreateRasterizerState();
+
+
 	
 }
 
@@ -67,32 +83,117 @@ void Shader::PushTransformData(TransformParams params)
 
 }
 
-void Shader::PushTextureData(ID3D11ShaderResourceView* _srvView, int num)
-{
-	mSRVArray[num] = _srvView;
-	mSRVariableArray[num]->SetResource(mSRVArray[num]);
-	
-	switch (num)
-	{
 
-	case 0:
-		TexOn.Tex0_On = 1;
+
+void Shader::PushTextureData(array<ID3D11ShaderResourceView*, SRVCOUNT>& _array, TEXTURE_ON texon, int count)
+{
+	for (int i = 0; i < count; i++)
+	{
+		mSRVariableArray[i]->SetResource(_array[i]);
+	}
+
+	mTextureOnParams->SetRawValue(&texon, 0, sizeof(TEXTURE_ON));
+}
+
+void Shader::PushLightData(LightParams& params)
+{
+	LightParams lightparams = params;
+	mLightParams->SetRawValue(&lightparams, 0, sizeof(LightParams));
+
+}
+
+void Shader::BindDepthStencilAndRasterizerState()
+{
+	GEngine->GetDeviceContext()->RSSetState(mRasterizerState);
+	GEngine->GetDeviceContext()->OMSetDepthStencilState(mDepthStencilState, 1);
+}
+
+void Shader::CreateRasterizerState()
+{
+	D3D11_RASTERIZER_DESC RasterState;
+	ZeroMemory(&RasterState, sizeof(D3D11_RASTERIZER_DESC));
+
+	switch (mShaderInfo.rasterizerType)
+	{
+	case RASTERIZER_TYPE::CULL_BACK:
+		RasterState.FillMode = D3D11_FILL_SOLID;
+		RasterState.CullMode = D3D11_CULL_BACK;
 		break;
-	case 1:
-		TexOn.Tex0_On = 1;
+	case RASTERIZER_TYPE::CULL_FRONT:
+		RasterState.FillMode = D3D11_FILL_SOLID;
+		RasterState.CullMode = D3D11_CULL_FRONT;
 		break;
-	case 2:
-		TexOn.Tex0_On = 1;
+	case RASTERIZER_TYPE::CULL_NONE:
+		RasterState.FillMode = D3D11_FILL_SOLID;
+		RasterState.CullMode = D3D11_CULL_NONE;
 		break;
-	case 3:
-		TexOn.Tex0_On = 1;
-		break;
-	case 4:
-		TexOn.Tex0_On = 1;
+	case RASTERIZER_TYPE::WIREFRAME:
+		RasterState.FillMode = D3D11_FILL_WIREFRAME;
+		RasterState.CullMode = D3D11_CULL_NONE;
 		break;
 	default:
 		break;
 	}
 
-	mTextureOnParams->SetRawValue(&TexOn,0,sizeof(TEXTURE_ON));
+
+	RasterState.FrontCounterClockwise = false;
+	RasterState.DepthBias = false;
+	RasterState.DepthBiasClamp = 0;
+	RasterState.SlopeScaledDepthBias = 0;
+	RasterState.DepthClipEnable = true;
+	RasterState.ScissorEnable = false;
+	RasterState.MultisampleEnable = false;
+	RasterState.AntialiasedLineEnable = false;
+
+	GEngine->GetDevice()->CreateRasterizerState(&RasterState, &mRasterizerState);
+
+	D3D11_DEPTH_STENCIL_DESC DSState;
+
+
+	switch (mShaderInfo.depthStencilType)
+	{
+	case DEPTH_STENCIL_TYPE::LESS:
+		DSState.DepthEnable = true;
+		DSState.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+		DSState.DepthFunc = D3D11_COMPARISON_LESS;
+		break;
+	case DEPTH_STENCIL_TYPE::LESS_EQUAL:
+		DSState.DepthEnable = true;
+		DSState.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+		DSState.DepthFunc = D3D11_COMPARISON_EQUAL;
+		break;
+	case DEPTH_STENCIL_TYPE::GREATER:
+		DSState.DepthEnable = true;
+		DSState.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+		DSState.DepthFunc = D3D11_COMPARISON_GREATER;
+		break;
+	case DEPTH_STENCIL_TYPE::GREATER_EQUAL:
+		DSState.DepthEnable = true;
+		DSState.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+		DSState.DepthFunc = D3D11_COMPARISON_GREATER_EQUAL;
+		break;
+	default:
+		break;
+	}
+
+
+
+	DSState.StencilEnable = true;
+	DSState.StencilReadMask = 0xFF;
+	DSState.StencilWriteMask = 0xFF;
+
+	DSState.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	DSState.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
+	DSState.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	DSState.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+	DSState.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	DSState.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
+	DSState.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	DSState.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+
+
+
+	GEngine->GetDevice()->CreateDepthStencilState(&DSState, &mDepthStencilState);
 }

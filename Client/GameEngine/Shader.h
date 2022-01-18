@@ -1,21 +1,48 @@
 #pragma once
 #include "Object.h"
 
+enum class RASTERIZER_TYPE
+{
+	CULL_NONE,
+	CULL_FRONT,
+	CULL_BACK,
+	WIREFRAME,
+};
 
+enum class DEPTH_STENCIL_TYPE
+{
+	LESS,
+	LESS_EQUAL,
+	GREATER,
+	GREATER_EQUAL,
+};
+
+struct ShaderInfo
+{
+	RASTERIZER_TYPE rasterizerType = RASTERIZER_TYPE::CULL_BACK;
+	DEPTH_STENCIL_TYPE depthStencilType = DEPTH_STENCIL_TYPE::LESS;
+};
 
 class Shader :
     public Object
 {
 public:
-	Shader(const wstring& path, const LPCSTR tech_name);
+	Shader(const wstring& path, const LPCSTR tech_name, RASTERIZER_TYPE rtype = RASTERIZER_TYPE::CULL_BACK, DEPTH_STENCIL_TYPE dtype = DEPTH_STENCIL_TYPE::LESS);
+
+	void Render();
 
 public:
 	void CreateShaderFile(const wstring& path, const LPCSTR tech_name);
 	void CreateVertexLayout();
 	void PushTransformData(TransformParams params);
-	void PushTextureData(ID3D11ShaderResourceView* _srvView, int num);
-
+	void PushTextureData(array<ID3D11ShaderResourceView*, SRVCOUNT>& _array, TEXTURE_ON texon, int count);
+	void PushLightData(LightParams& params);
 	void SetMaterial(shared_ptr<class Material> material) { mMaterial = material; }
+	void BindDepthStencilAndRasterizerState();
+
+
+private:
+	void CreateRasterizerState();
 public:
 	ID3DX11EffectTechnique* GetTech() { return mTech; }
 
@@ -27,9 +54,16 @@ private:
 	ID3DX11EffectTechnique*		mTech;
 	ID3DX11EffectVariable*		mMatrixParams;
 	ID3DX11EffectVariable*      mTextureOnParams;
+	ID3DX11EffectVariable*      mLightParams;
 	ID3D11InputLayout*			mInputLayout;
+	ID3D11RasterizerState*		mRasterizerState;
+	ID3D11DepthStencilState*	mDepthStencilState;
 
 
+	ShaderInfo					mShaderInfo;
+
+
+	int CurrentTextureCount = 0;
 	array<ID3DX11EffectShaderResourceVariable*, SRVCOUNT> mSRVariableArray;
 	array<ID3D11ShaderResourceView*, SRVCOUNT> mSRVArray;
 	TransformParams				mTransformParams;
@@ -37,5 +71,7 @@ private:
 	TEXTURE_ON TexOn;
 
 	weak_ptr<class Material> mMaterial;
+
+
 };
 

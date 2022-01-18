@@ -17,73 +17,47 @@ struct WindowInfo {
 struct Vertex
 {
 	XMFLOAT3 Pos;
-	XMFLOAT3 Normal;
 	XMFLOAT2 Tex;
+	XMFLOAT3 Normal;
+	XMFLOAT3 Tangent;
 	
 
 };
 
-struct DirectionalLight
+enum class LIGHT_TYPE
 {
-	DirectionalLight() { ZeroMemory(this, sizeof(this)); }
-
-	XMFLOAT4 Ambient;
-	XMFLOAT4 Diffuse;
-	XMFLOAT4 Specular;
-	XMFLOAT3 Direction;
-	float Pad; // Pad the last float so we can set an array of lights if we wanted.
-
-
+	DIRECTIONAL_LIGHT,
+	POINT_LIGHT,
+	SPOT_LIGHT,
 };
 
-struct PointLight
+struct LightColor
 {
-	PointLight() { ZeroMemory(this, sizeof(this)); }
-
-	XMFLOAT4 Ambient;
-	XMFLOAT4 Diffuse;
-	XMFLOAT4 Specular;
-
-	// Packed into 4D vector: (Position, Range)
-	XMFLOAT3 Position;
-	float Range;
-
-	// Packed into 4D vector: (A0, A1, A2, Pad)
-	XMFLOAT3 Att;
-	float Pad; // Pad the last float so we can set an array of lights if we wanted.
+	XMVECTOR	diffuse;
+	XMVECTOR	ambient;
+	XMVECTOR	specular;
 };
 
-struct SpotLight
+struct LightInfo
 {
-	SpotLight() { ZeroMemory(this, sizeof(this)); }
-
-	XMFLOAT4 Ambient;
-	XMFLOAT4 Diffuse;
-	XMFLOAT4 Specular;
-
-	// Packed into 4D vector: (Position, Range)
-	XMFLOAT3 Position;
-	float Range;
-
-	// Packed into 4D vector: (Direction, Spot)
-	XMFLOAT3 Direction;
-	float Spot;
-
-	// Packed into 4D vector: (Att, Pad)
-	XMFLOAT3 Att;
-	float Pad; // Pad the last float so we can set an array of lights if we wanted.
+	LightColor	color;
+	XMVECTOR		position;
+	XMVECTOR		direction;
+	INT32		lightType;
+	float		range;
+	float		angle;
+	INT32		padding;
 };
 
-
-struct MaterialLight
+struct LightParams
 {
-	MaterialLight() { ZeroMemory(this, sizeof(this)); }
-
-	XMFLOAT4 Ambient;
-	XMFLOAT4 Diffuse;
-	XMFLOAT4 Specular; // w = SpecPower
-	XMFLOAT4 Reflect;
+	UINT32		lightCount;
+	INT32	padding1;
+	INT32	padding2;
+	INT32	padding3;
+	LightInfo	lights[50];
 };
+
 
 
 struct TransformParams

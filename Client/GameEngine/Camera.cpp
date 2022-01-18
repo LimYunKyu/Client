@@ -3,6 +3,9 @@
 #include "GameObject.h"
 #include "Transform.h"
 #include "GameEngine.h"
+#include "Scene.h"
+#include "SceneManager.h"
+#include "MeshRender.h"
 
 XMMATRIX Camera::ViewMatrix;
 XMMATRIX Camera::ProjectionMatrix;
@@ -40,18 +43,41 @@ void Camera::LateUpdate()
 	else
 		mProJectionMatirx = ::XMMatrixOrthographicLH(_width * _scale, _height * _scale, _near, _far);
 
-	ViewMatrix = mViewMatrix;
-	ProjectionMatrix = mProJectionMatirx;
+	
 
 }
 
 void Camera::FinalUpdate()
 {
+	_frustum.FinalUpdate();
 }
 	
 
 void Camera::Render()
 {
+	ViewMatrix = mViewMatrix;
+	ProjectionMatrix = mProJectionMatirx;
 
+	shared_ptr<Scene> scene = SceneManager::GetInstance()->GetCurrentScene();
+
+	const vector<shared_ptr<GameObject>>& gameObjects = scene->GetGameObjectVector();
+
+	for (auto& gameObject : gameObjects)
+	{
+		if (gameObject->GetMeshRender() == nullptr)
+			continue;
+
+		if (gameObject->GetCheckFrustum())
+		{
+			if (_frustum.ContainsSphere(
+				gameObject->GetTransform()->GetPosition(),
+				gameObject->GetTransform()->GetBoundingSphereRadius()) == false)
+			{
+				continue;
+			}
+		}
+
+		gameObject->Render();
+	}
 
 }

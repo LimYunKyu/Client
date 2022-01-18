@@ -35,6 +35,9 @@ private:
 	ID3D11DepthStencilView*		mDepthStencilView;
 	D3D11_VIEWPORT				mViewPort;
 	ID3D11SamplerState*			g_pSamplerLinear = NULL;
+	ID3D11Buffer*				g_buffer = NULL;
+
+
 
 	IDXGIDevice*				mdxgiDevice;
 	IDXGIAdapter*				mdxgiAdapter;
@@ -44,6 +47,7 @@ private:
 	D3D_DRIVER_TYPE				md3dDriverType = D3D_DRIVER_TYPE_HARDWARE;
 	UINT						m4xMsaaQuality = 0;
 	bool						mEnable4xMsaa = false;
+	int                         check = 0;
 
 };
 
