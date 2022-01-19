@@ -1,5 +1,6 @@
 #pragma once
 #include "Object.h"
+#include "Material.h"
 
 enum class RASTERIZER_TYPE
 {
@@ -35,7 +36,7 @@ public:
 	void CreateShaderFile(const wstring& path, const LPCSTR tech_name);
 	void CreateVertexLayout();
 	void PushTransformData(TransformParams params);
-	void PushTextureData(array<ID3D11ShaderResourceView*, SRVCOUNT>& _array, TEXTURE_ON texon, int count);
+	void PushTextureData(array<shared_ptr<class Texture>, TEXTURE_COUNT>& _array, TEXTURE_ON texon, int count);
 	void PushLightData(LightParams& params);
 	void SetMaterial(shared_ptr<class Material> material) { mMaterial = material; }
 	void BindDepthStencilAndRasterizerState();
@@ -43,6 +44,7 @@ public:
 
 private:
 	void CreateRasterizerState();
+	
 public:
 	ID3DX11EffectTechnique* GetTech() { return mTech; }
 
@@ -65,10 +67,10 @@ private:
 
 	int CurrentTextureCount = 0;
 	array<ID3DX11EffectShaderResourceVariable*, SRVCOUNT> mSRVariableArray;
-	array<ID3D11ShaderResourceView*, SRVCOUNT> mSRVArray;
+	array<shared_ptr<class Texture>, TEXTURE_COUNT>       mTextureArray;
+	
 	TransformParams				mTransformParams;
 
-	TEXTURE_ON TexOn;
 
 	weak_ptr<class Material> mMaterial;
 

@@ -1,4 +1,5 @@
 #pragma once
+class Shader;
 class Scene
 {
 public:
@@ -19,6 +20,6 @@ protected:
 
 
 	LightParams lightparams = {};
-	shared_ptr<class Shader> mShader;
+	shared_ptr<Shader> mlightShader;
 };
 

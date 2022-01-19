@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Shader.h"
 #include "GameEngine.h"
-
+#include "Texture.h"
 
 
 Shader::Shader(const wstring& path, const LPCSTR tech_name, RASTERIZER_TYPE rtype, DEPTH_STENCIL_TYPE dtype) : Object(OBJECT_TYPE::SHADER)
@@ -13,7 +13,7 @@ Shader::Shader(const wstring& path, const LPCSTR tech_name, RASTERIZER_TYPE rtyp
 	mShaderInfo.depthStencilType = dtype;
 	CreateShaderFile(path, tech_name);
 	CreateVertexLayout();
-	TexOn = {};
+	
 }
 
 void Shader::Render()
@@ -85,11 +85,11 @@ void Shader::PushTransformData(TransformParams params)
 
 
 
-void Shader::PushTextureData(array<ID3D11ShaderResourceView*, SRVCOUNT>& _array, TEXTURE_ON texon, int count)
+void Shader::PushTextureData(array<shared_ptr<class Texture>, TEXTURE_COUNT>& _array, TEXTURE_ON texon, int count)
 {
 	for (int i = 0; i < count; i++)
 	{
-		mSRVariableArray[i]->SetResource(_array[i]);
+		mSRVariableArray[i]->SetResource(_array[i]->GetSRV());
 	}
 
 	mTextureOnParams->SetRawValue(&texon, 0, sizeof(TEXTURE_ON));

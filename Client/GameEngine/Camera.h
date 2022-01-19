@@ -39,6 +39,21 @@ public:
     void SetWidth(float val) { _near = val; }
     void SetHeight(float val) { _near = val; }
 
+    void SetCullingMaskLayerOnOff(UINT8 layer, bool on)
+    {
+        if (on)
+            _cullingMask |= (1 << layer);
+        else
+            _cullingMask &= ~(1 << layer);
+    }
+
+
+    void SetCullingMaskAll() { SetCullingMask(UINT32_MAX); }
+    void SetCullingMask(UINT mask) { _cullingMask = mask; }
+    bool IsCulled(UINT8 layer) { return (_cullingMask & (1 << layer)) != 0; }
+
+
+
 
 private:
     float _near = 1.f;
@@ -58,6 +73,9 @@ private:
 
     PROJECTION_TYPE mProjectionType = PROJECTION_TYPE::PERSPECTIVE;
     Frustum _frustum;
+    UINT32 _cullingMask = 0;
+
+   
 };
 
 

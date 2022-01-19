@@ -1,5 +1,41 @@
 #include "pch.h"
 #include "ResourceManager.h"
+#include "SceneManager.h"
+#include "Scene.h"
+
+shared_ptr<Mesh> ResourceManager::LoadRectangleMesh()
+{
+	shared_ptr<Mesh> findMesh = Get<Mesh>(L"Rectangle");
+	if (findMesh)
+		return findMesh;
+
+	float w2 = 0.5f;
+	float h2 = 0.5f;
+
+	vector<Vertex> vec(4);
+	vec=
+	{
+		{ XMFLOAT3(-1.0f, -1.0f, 0.f),XMFLOAT2(0.0f,1.0f), XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT3(1.0f, 0.0f, 0.0f)},
+		{ XMFLOAT3(-1.0f, +1.0f, 0.f),XMFLOAT2(0.0f,0.0f),XMFLOAT3(-1.0f, +1.0f, -1.0f), XMFLOAT3(1.0f, 0.0f, 0.0f) },
+		{ XMFLOAT3(+1.0f, +1.0f, 0.f),XMFLOAT2(1.0f,0.0f),XMFLOAT3(+1.0f, +1.0f, -1.0f), XMFLOAT3(1.0f, 0.0f, 0.0f) },
+		{ XMFLOAT3(+1.0f, -1.0f, 0.f),XMFLOAT2(1.0f,1.0f),XMFLOAT3(+1.0f, -1.0f, -1.0f), XMFLOAT3(1.0f, 0.0f, 0.0f) },
+	};
+
+	
+
+	vector<UINT32> idx(6);
+
+	// ¾Õ¸é
+	idx[0] = 0; idx[1] = 1; idx[2] = 2;
+	idx[3] = 0; idx[4] = 2; idx[5] = 3;
+
+	shared_ptr<Mesh> mesh = make_shared<Mesh>();
+	mesh->CreateVertexBuffer(vec);
+	mesh->CreateIndexBuffer(idx);
+	Add(L"Rectangle", mesh);
+
+	return mesh;
+}
 
 shared_ptr<Mesh> ResourceManager::LoadCubeMesh()
 {
@@ -201,4 +237,26 @@ shared_ptr<Mesh> ResourceManager::LoadSphereMesh()
 	Add(L"Sphere", mesh);
 
 	return mesh;
+}
+
+void ResourceManager::Initialize()
+{
+	CreateDefaultShader();
+}
+
+void ResourceManager::CreateDefaultShader()
+{
+
+
+	{
+	 shared_ptr<Shader> shader = make_shared<Shader>(L"..\\FX\\forward.fx", "DefaultTech");
+	 Add<Shader>(L"Forward", shader);
+	
+
+	}
+
+	{
+	 shared_ptr<Shader> shader = make_shared<Shader>(L"..\\FX\\skybox.fx", "DefaultTech", RASTERIZER_TYPE::CULL_NONE, DEPTH_STENCIL_TYPE::LESS_EQUAL);
+	 Add<Shader>(L"Skybox", shader);
+	}
 }

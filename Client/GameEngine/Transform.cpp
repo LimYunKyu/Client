@@ -64,11 +64,6 @@ void Transform::Render()
 	params.matWV = params.matWorld * params.matView;
 	params.matWVP = params.matWorld * params.matView * params.matProjection;
 
-
-	XMVECTOR te = { mCurrentPos.x,mCurrentPos.y,mCurrentPos.z,1 };
-	XMVECTOR test = XMVector4Transform(te, params.matWVP);
-	
-
 	
 	mGameObject.lock()->GetMeshRender()->GetMaterial()->GetShader()->PushTransformData(params);
 

@@ -31,11 +31,17 @@ public:
 	virtual void Render();
 public:
 	OBJECT_TYPE GetObjectType() { return mObjectType; }
+	virtual void Load(const wstring& path) {}
+	virtual void Save(const wstring& path) {}
+
+
+	void SetName(const wstring& name) { _name = name; }
+	const wstring& GetName() { return _name; }
 
 protected:
 	OBJECT_TYPE mObjectType;
 
-
+	wstring _name;
 
 };
 

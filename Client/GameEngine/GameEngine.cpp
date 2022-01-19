@@ -4,6 +4,7 @@
 #include "Timer.h"
 #include "InputManager.h"
 #include "TestScene.h"
+#include "ResourceManager.h"
 void GameEngine::Initialize(const WindowInfo& wInfo)
 {
 	mWinfo = wInfo;
@@ -12,8 +13,10 @@ void GameEngine::Initialize(const WindowInfo& wInfo)
 	CreateSampleState();
 	Timer::GetInstance()->Init();
 	shared_ptr<TestScene> _scene = make_shared<TestScene>();
+	ResourceManager::GetInstance()->Initialize();
 	SceneManager::GetInstance()->SetScene(_scene);
 	InputManager::GetInstance()->Init(mWinfo.hwnd);
+	
 
 }
 

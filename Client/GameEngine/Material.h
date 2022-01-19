@@ -24,7 +24,9 @@ public:
 	shared_ptr<class Shader> GetShader() { return mShader; }
 private:
 	shared_ptr<class Shader>   mShader;
-	shared_ptr<class Texture>  mTexture;
 	array<shared_ptr<class Texture>, TEXTURE_COUNT> mTextureArray;
+	TEXTURE_ON mTexOn;
+
+	int CurrentTextureCount = 0;
 };
 

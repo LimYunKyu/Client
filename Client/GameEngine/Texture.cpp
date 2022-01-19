@@ -11,11 +11,10 @@ Texture::Texture() : Object(OBJECT_TYPE::TEXTURE)
 
 void Texture::Render()
 {
-
-	mMaterial.lock()->GetShader()->PushTextureData(mSRVArray,TexOn,CurrentTextureCount);
 }
+	
 
-void Texture::CreateTexture(wstring path,int srvnum)
+void Texture::CreateTexture(wstring path)
 {
 	wchar_t ext[_MAX_EXT] = {};
 	_wsplitpath_s(path.c_str(), nullptr, 0, nullptr, 0, nullptr, 0, ext, _MAX_EXT);
@@ -47,30 +46,13 @@ void Texture::CreateTexture(wstring path,int srvnum)
 
 		hr = CreateShaderResourceView(GEngine->GetDevice(),
 			image.GetImages(), image.GetImageCount(),
-			image.GetMetadata(), &(mSRVArray[srvnum]));
-
-		switch (srvnum)
-		{
-
-		case 0:
-			TexOn.Tex0_On = 1;
-			break;
-		case 1:
-			TexOn.Tex1_On = 1;
-			break;
-		case 2:
-			TexOn.Tex2_On = 1;
-			break;
-		case 3:
-			TexOn.Tex3_On = 1;
-			break;
-		case 4:
-			TexOn.Tex4_On = 1;
-			break;
-		default:
-			break;
-		}
+			image.GetMetadata(), &(mSRV));
 	}
 
 	
+}
+
+void Texture::Load(const wstring& path)
+{
+	CreateTexture(path);
 }

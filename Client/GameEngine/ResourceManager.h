@@ -24,8 +24,14 @@ public:
 	template<typename T>
 	OBJECT_TYPE GetObjectType();
 
+	shared_ptr<Mesh> LoadRectangleMesh();
 	shared_ptr<Mesh> LoadCubeMesh();
 	shared_ptr<Mesh> LoadSphereMesh();
+
+public:
+	void Initialize();
+private:
+	void CreateDefaultShader();
 
 private:
 	using KeyObjMap = std::map<wstring/*key*/, shared_ptr<Object>>;

@@ -77,7 +77,7 @@ void Scene::PushLightData()
 	lightparams.padding1 = 0;
 	lightparams.padding2 = 0;
 	lightparams.padding3 = 0;
-	mShader->PushLightData(lightparams);
+	mlightShader->PushLightData(lightparams);
 
 
 }

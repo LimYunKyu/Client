@@ -67,6 +67,9 @@ void Camera::Render()
 		if (gameObject->GetMeshRender() == nullptr)
 			continue;
 
+		if (IsCulled(gameObject->GetLayerIndex()))
+			continue;
+
 		if (gameObject->GetCheckFrustum())
 		{
 			if (_frustum.ContainsSphere(
