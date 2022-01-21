@@ -2,6 +2,12 @@
 #include "Object.h"
 #include "Material.h"
 
+enum class SHADER_TYPE : UINT8
+{
+	DEFERRED,
+	FORWARD,
+};
+
 enum class RASTERIZER_TYPE
 {
 	CULL_NONE,
@@ -20,15 +26,17 @@ enum class DEPTH_STENCIL_TYPE
 
 struct ShaderInfo
 {
+	SHADER_TYPE shaderType = SHADER_TYPE::FORWARD;
 	RASTERIZER_TYPE rasterizerType = RASTERIZER_TYPE::CULL_BACK;
 	DEPTH_STENCIL_TYPE depthStencilType = DEPTH_STENCIL_TYPE::LESS;
+	D3D_PRIMITIVE_TOPOLOGY topologyType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 };
 
 class Shader :
     public Object
 {
 public:
-	Shader(const wstring& path, const LPCSTR tech_name, RASTERIZER_TYPE rtype = RASTERIZER_TYPE::CULL_BACK, DEPTH_STENCIL_TYPE dtype = DEPTH_STENCIL_TYPE::LESS);
+	Shader(const wstring& path, const LPCSTR tech_name, SHADER_TYPE stype = SHADER_TYPE::FORWARD, RASTERIZER_TYPE rtype = RASTERIZER_TYPE::CULL_BACK, DEPTH_STENCIL_TYPE dtype = DEPTH_STENCIL_TYPE::LESS);
 
 	void Render();
 
@@ -41,6 +49,7 @@ public:
 	void SetMaterial(shared_ptr<class Material> material) { mMaterial = material; }
 	void BindDepthStencilAndRasterizerState();
 
+	SHADER_TYPE GetShaderType() { return mShaderInfo.shaderType; }
 
 private:
 	void CreateRasterizerState();

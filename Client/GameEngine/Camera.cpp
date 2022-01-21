@@ -6,6 +6,7 @@
 #include "Scene.h"
 #include "SceneManager.h"
 #include "MeshRender.h"
+#include "Shader.h"
 
 XMMATRIX Camera::ViewMatrix;
 XMMATRIX Camera::ProjectionMatrix;
@@ -83,4 +84,64 @@ void Camera::Render()
 		gameObject->Render();
 	}
 
+}
+
+void Camera::SortGameObject()
+{
+	shared_ptr<Scene> scene = SceneManager::GetInstance()->GetCurrentScene();
+	const vector<shared_ptr<GameObject>>& gameObjects = scene->GetGameObjectVector();
+	_vecForward.clear();
+	_vecDeferred.clear();
+
+	for (auto& gameObject : gameObjects)
+	{
+		if (gameObject->GetMeshRender() == nullptr)
+			continue;
+
+		if (IsCulled(gameObject->GetLayerIndex()))
+			continue;
+
+		if (gameObject->GetCheckFrustum())
+		{
+			if (_frustum.ContainsSphere(
+				gameObject->GetTransform()->GetPosition(),
+				gameObject->GetTransform()->GetBoundingSphereRadius()) == false)
+			{
+				continue;
+			}
+		}
+
+		SHADER_TYPE shaderType = gameObject->GetMeshRender()->GetMaterial()->GetShader()->GetShaderType();
+		switch (shaderType)
+		{
+		case SHADER_TYPE::DEFERRED:
+			_vecDeferred.push_back(gameObject);
+			break;
+		case SHADER_TYPE::FORWARD:
+			_vecForward.push_back(gameObject);
+			break;
+		}
+	}
+
+}
+
+void Camera::Render_Deferred()
+{
+	ViewMatrix = mViewMatrix;
+	ProjectionMatrix = mProJectionMatirx;
+	for (auto& gameObject : _vecDeferred)
+	{
+		gameObject->Render();
+	}
+}
+
+void Camera::Render_Forward()
+{
+	ViewMatrix = mViewMatrix;
+	ProjectionMatrix = mProJectionMatirx;
+
+	for (auto& gameObject : _vecForward)
+	{
+		gameObject->Render();
+	}
 }

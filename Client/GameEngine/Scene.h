@@ -21,5 +21,6 @@ protected:
 
 	LightParams lightparams = {};
 	shared_ptr<Shader> mlightShader;
+	ID3D11Buffer* mlightBuffer;
 };
 

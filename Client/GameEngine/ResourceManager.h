@@ -27,6 +27,8 @@ public:
 	shared_ptr<Mesh> LoadRectangleMesh();
 	shared_ptr<Mesh> LoadCubeMesh();
 	shared_ptr<Mesh> LoadSphereMesh();
+	shared_ptr<Texture> CreateTexture(const wstring& name, DXGI_FORMAT format, UINT32 width, UINT32 height, XMFLOAT4 clearColor, D3D11_BIND_FLAG flag);
+	shared_ptr<Texture> CreateTextureFromResource(const wstring& name, ID3D11Texture2D* tex2D);
 
 public:
 	void Initialize();

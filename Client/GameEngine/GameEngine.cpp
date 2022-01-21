@@ -5,18 +5,22 @@
 #include "InputManager.h"
 #include "TestScene.h"
 #include "ResourceManager.h"
+#include "RenderTargetGroup.h"
 void GameEngine::Initialize(const WindowInfo& wInfo)
 {
 	mWinfo = wInfo;
 	InitializeDeviceAndSwapChain();
-	ScreenResize();
+	ScreenSetting();
+	//ScreenResize();
 	CreateSampleState();
+	
+	CreateRenderTargetGroups();
 	Timer::GetInstance()->Init();
 	shared_ptr<TestScene> _scene = make_shared<TestScene>();
 	ResourceManager::GetInstance()->Initialize();
 	SceneManager::GetInstance()->SetScene(_scene);
 	InputManager::GetInstance()->Init(mWinfo.hwnd);
-	
+
 
 }
 
@@ -41,6 +45,19 @@ void GameEngine::Render()
 
 void GameEngine::InitializeDeviceAndSwapChain()
 {
+
+
+	D3D_FEATURE_LEVEL featureLevels[] =
+	{
+		D3D_FEATURE_LEVEL_11_1,
+		D3D_FEATURE_LEVEL_11_0,
+		D3D_FEATURE_LEVEL_10_1,
+		D3D_FEATURE_LEVEL_10_0,
+		D3D_FEATURE_LEVEL_9_3,
+		D3D_FEATURE_LEVEL_9_2,
+		D3D_FEATURE_LEVEL_9_1
+	};
+
 	UINT createDeviceFlags = 0;
 #if defined(DEBUG) || defined(_DEBUG)  
 	createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
@@ -51,7 +68,8 @@ void GameEngine::InitializeDeviceAndSwapChain()
 		md3dDriverType,
 		0,                 // no software device
 		createDeviceFlags,
-		0, 0,              // default feature level array
+		featureLevels,
+		ARRAYSIZE(featureLevels),              // default feature level array
 		D3D11_SDK_VERSION,
 		&mDevice,
 		&featureLevel,
@@ -64,11 +82,6 @@ void GameEngine::InitializeDeviceAndSwapChain()
 
 	}
 
-	if (featureLevel != D3D_FEATURE_LEVEL_11_0)
-	{
-		MessageBox(0, L"Direct3D Feature Level 11 unsupported.", 0, 0);
-
-	}
 
 	mDevice->CheckMultisampleQualityLevels(DXGI_FORMAT_R8G8B8A8_UNORM, 4, &m4xMsaaQuality);
 	assert(m4xMsaaQuality > 0);
@@ -127,37 +140,40 @@ void GameEngine::ScreenResize()
 {
 	mSwapChain->ResizeBuffers(1, mWinfo.ClientWidth, mWinfo.ClientHeight, DXGI_FORMAT_R8G8B8A8_UNORM, 0);
 	mSwapChain->GetBuffer(0, IID_PPV_ARGS(&mBackBuffer));
-	mDevice->CreateRenderTargetView(mBackBuffer, 0, &mRenderTargetView);
+   
 
-	D3D11_TEXTURE2D_DESC depthStencilDesc;
+	
 
-	depthStencilDesc.Width = mWinfo.ClientWidth;
-	depthStencilDesc.Height = mWinfo.ClientHeight;
-	depthStencilDesc.MipLevels = 1;
-	depthStencilDesc.ArraySize = 1;
-	depthStencilDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 
-	if (mEnable4xMsaa)
-	{
-		depthStencilDesc.SampleDesc.Count = 4;
-		depthStencilDesc.SampleDesc.Quality = m4xMsaaQuality - 1;
-	}
-	// No MSAA
-	else
-	{
-		depthStencilDesc.SampleDesc.Count = 1;
-		depthStencilDesc.SampleDesc.Quality = 0;
-	}
+	//D3D11_TEXTURE2D_DESC depthStencilDesc;
 
-	depthStencilDesc.Usage = D3D11_USAGE_DEFAULT;
-	depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-	depthStencilDesc.CPUAccessFlags = 0;
-	depthStencilDesc.MiscFlags = 0;
+	//depthStencilDesc.Width = mWinfo.ClientWidth;
+	//depthStencilDesc.Height = mWinfo.ClientHeight;
+	//depthStencilDesc.MipLevels = 1;
+	//depthStencilDesc.ArraySize = 1;
+	//depthStencilDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 
-	mDevice->CreateTexture2D(&depthStencilDesc, 0, &mDepthStencilBuffer);
-	mDevice->CreateDepthStencilView(mDepthStencilBuffer, 0,&mDepthStencilView);
+	//if (mEnable4xMsaa)
+	//{
+	//	depthStencilDesc.SampleDesc.Count = 4;
+	//	depthStencilDesc.SampleDesc.Quality = m4xMsaaQuality - 1;
+	//}
+	//// No MSAA
+	//else
+	//{
+	//	depthStencilDesc.SampleDesc.Count = 1;
+	//	depthStencilDesc.SampleDesc.Quality = 0;
+	//}
 
-	mDeviceContext->OMSetRenderTargets(1, &mRenderTargetView, mDepthStencilView);
+	//depthStencilDesc.Usage = D3D11_USAGE_DEFAULT;
+	//depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+	//depthStencilDesc.CPUAccessFlags = 0;
+	//depthStencilDesc.MiscFlags = 0;
+
+	//mDevice->CreateTexture2D(&depthStencilDesc, 0, &mDepthStencilBuffer);
+	//mDevice->CreateDepthStencilView(mDepthStencilBuffer, 0,&mDepthStencilView);
+
+	//mDeviceContext->OMSetRenderTargets(1, &mRenderTargetView, mDepthStencilView);
 
 	mViewPort.TopLeftX = 0;
 	mViewPort.TopLeftY = 0;
@@ -167,6 +183,7 @@ void GameEngine::ScreenResize()
 	mViewPort.MaxDepth = 1.0f;
 
 	mDeviceContext->RSSetViewports(1, &mViewPort);
+
 
 }
 
@@ -192,11 +209,14 @@ void GameEngine::RenderBegin()
 
 
 	XMVECTORF32 LightSteelBlue = { 0.69f, 0.77f, 0.87f, 1.0f };
+	shared_ptr<Texture> dsTexture = ResourceManager::GetInstance()->Get<Texture>(L"DepthStencil");
+	shared_ptr<Texture> rtTexture = ResourceManager::GetInstance()->Get<Texture>(L"SwapChainTarget");
+
 	mDeviceContext->PSSetSamplers(0, 1, &g_pSamplerLinear);
-	mDeviceContext->ClearRenderTargetView(mRenderTargetView, reinterpret_cast<const float*>(&Colors::LightSteelBlue));
-	mDeviceContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	//mDeviceContext->ClearRenderTargetView(rtTexture->GetRTV(), reinterpret_cast<const float*>(&Colors::BlanchedAlmond));
+	mDeviceContext->ClearDepthStencilView(dsTexture->GetDSV(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	mDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	//mDeviceContext->VSSetConstantBuffers(0, 1, &g_buffer);
+	
 }
 
 void GameEngine::RenderEnd()
@@ -212,6 +232,62 @@ void GameEngine::ShowFPS()
 	::wsprintf(text, L"FPS : %d", fps);
 
 	::SetWindowText(mWinfo.hwnd, text);
+}
+
+void GameEngine::CreateRenderTargetGroups()
+{
+	//DepthStencil
+	shared_ptr<Texture> dsTexture = ResourceManager::GetInstance()->CreateTexture(L"DepthStencil", DXGI_FORMAT_D24_UNORM_S8_UINT,
+		mWinfo.ClientWidth, mWinfo.ClientHeight, XMFLOAT4(0.69f, 0.77f, 0.87f, 1.0f), D3D11_BIND_DEPTH_STENCIL);
+	
+	
+	//SwapChain
+
+	{
+		vector<RenderTarget> rtVec(SWAP_CHAIN_BUFFER_COUNT);
+		mSwapChain->GetBuffer(0, IID_PPV_ARGS(&mBackBuffer));
+		rtVec[0].target = ResourceManager::GetInstance()->CreateTextureFromResource(L"SwapChainTarget", mBackBuffer);
+		_rtGroups[static_cast<UINT8>(RENDER_TARGET_GROUP_TYPE::SWAP_CHAIN)] = make_shared<RenderTargetGroup>();
+		_rtGroups[static_cast<UINT8>(RENDER_TARGET_GROUP_TYPE::SWAP_CHAIN)]->Create(RENDER_TARGET_GROUP_TYPE::SWAP_CHAIN, rtVec, dsTexture);
+
+	}
+	
+	//Deferred
+
+	{
+		vector<RenderTarget> rtVec(RENDER_TARGET_G_BUFFER_GROUP_MEMBER_COUNT);
+		rtVec[0].target = ResourceManager::GetInstance()->CreateTexture(L"PositionTarget", DXGI_FORMAT_R32G32B32A32_FLOAT,
+			mWinfo.ClientWidth, mWinfo.ClientHeight, XMFLOAT4(0.69f, 0.77f, 0.87f, 1.0f), D3D11_BIND_RENDER_TARGET);
+
+		rtVec[1].target = ResourceManager::GetInstance()->CreateTexture(L"NomalTarget", DXGI_FORMAT_R32G32B32A32_FLOAT,
+			mWinfo.ClientWidth, mWinfo.ClientHeight, XMFLOAT4(0.69f, 0.77f, 0.87f, 1.0f), D3D11_BIND_RENDER_TARGET);
+
+		rtVec[2].target = ResourceManager::GetInstance()->CreateTexture(L"DiffuseTarget", DXGI_FORMAT_R8G8B8A8_UNORM,
+			mWinfo.ClientWidth, mWinfo.ClientHeight, XMFLOAT4(0.69f, 0.77f, 0.87f, 1.0f), D3D11_BIND_RENDER_TARGET);
+	
+		_rtGroups[static_cast<UINT8>(RENDER_TARGET_GROUP_TYPE::G_BUFFER)] = make_shared<RenderTargetGroup>();
+		_rtGroups[static_cast<UINT8>(RENDER_TARGET_GROUP_TYPE::G_BUFFER)]->Create(RENDER_TARGET_GROUP_TYPE::G_BUFFER, rtVec, dsTexture);
+	}
+	
+	
+
+
+}
+
+void GameEngine::ScreenSetting()
+{
+	mSwapChain->ResizeBuffers(1, mWinfo.ClientWidth, mWinfo.ClientHeight, DXGI_FORMAT_R8G8B8A8_UNORM, 0);
+	mSwapChain->GetBuffer(0, IID_PPV_ARGS(&mBackBuffer));
+
+
+	mViewPort.TopLeftX = 0;
+	mViewPort.TopLeftY = 0;
+	mViewPort.Width = static_cast<float>(mWinfo.ClientWidth);
+	mViewPort.Height = static_cast<float>(mWinfo.ClientHeight);
+	mViewPort.MinDepth = 0.0f;
+	mViewPort.MaxDepth = 1.0f;
+
+	mDeviceContext->RSSetViewports(1, &mViewPort);
 }
 
 

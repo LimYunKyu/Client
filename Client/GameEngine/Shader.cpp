@@ -4,11 +4,11 @@
 #include "Texture.h"
 
 
-Shader::Shader(const wstring& path, const LPCSTR tech_name, RASTERIZER_TYPE rtype, DEPTH_STENCIL_TYPE dtype) : Object(OBJECT_TYPE::SHADER)
+Shader::Shader(const wstring& path, const LPCSTR tech_name, SHADER_TYPE stype, RASTERIZER_TYPE rtype, DEPTH_STENCIL_TYPE dtype) : Object(OBJECT_TYPE::SHADER)
 {
 
 	
-	
+	mShaderInfo.shaderType = stype;
 	mShaderInfo.rasterizerType = rtype;
 	mShaderInfo.depthStencilType = dtype;
 	CreateShaderFile(path, tech_name);
@@ -87,6 +87,9 @@ void Shader::PushTransformData(TransformParams params)
 
 void Shader::PushTextureData(array<shared_ptr<class Texture>, TEXTURE_COUNT>& _array, TEXTURE_ON texon, int count)
 {
+
+	if (count == 1)
+		int a = 5;
 	for (int i = 0; i < count; i++)
 	{
 		mSRVariableArray[i]->SetResource(_array[i]->GetSRV());

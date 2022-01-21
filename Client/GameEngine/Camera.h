@@ -29,7 +29,9 @@ public:
 public:
     PROJECTION_TYPE GetCameraType() { return mProjectionType; }
 
-
+    void SortGameObject();
+    void Render_Deferred();
+    void Render_Forward();
 
     void SetCameraType(PROJECTION_TYPE type) { mProjectionType = type; }
     void SetNear(float val) { _near = val; }
@@ -53,8 +55,6 @@ public:
     bool IsCulled(UINT8 layer) { return (_cullingMask & (1 << layer)) != 0; }
 
 
-
-
 private:
     float _near = 1.f;
     float _far = 1000.f;
@@ -75,6 +75,9 @@ private:
     Frustum _frustum;
     UINT32 _cullingMask = 0;
 
+private:
+    vector<shared_ptr<GameObject>>	_vecDeferred;
+    vector<shared_ptr<GameObject>>	_vecForward;
    
 };
 

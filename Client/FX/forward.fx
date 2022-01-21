@@ -21,10 +21,11 @@ struct VertexOut
 	
 };
 
-VertexOut VS(VertexIn vin)
+VertexOut VS(VertexIn vin) 
 {
 	VertexOut vout = (VertexOut)0;
 	vout.pos = mul(float4(vin.pos, 1.0f), g_TransformParmas.g_matWVP);
+	vout.pos.z = 0.f;
 	vout.viewPos = mul(float4(vin.pos, 1.f), g_TransformParmas.g_matWV).xyz;
 	vout.viewNormal = normalize(mul(float4(vin.normal, 0.f), g_TransformParmas.g_matWV).xyz);
 	vout.viewTangent = normalize(mul(float4(vin.tangent, 0.f), g_TransformParmas.g_matWV).xyz);
@@ -61,12 +62,15 @@ float4 PS(VertexOut pin) : SV_Target
 
 	LightColor totalColor = (LightColor)0.f;
 
+	
 	for (int i = 0; i < g_lightParams.g_lightCount; ++i)
 	{
 		 LightColor color = CalculateLightColor(i, viewNormal, pin.viewPos);
 		 totalColor.diffuse += color.diffuse;
 		 totalColor.ambient += color.ambient;
 		 totalColor.specular += color.specular;
+		//color = float4(1.f, 0.f, 1.f, 1.f);
+		 //totalColor = (LightColor)1.f;
 	}
 
 	color.xyz = (totalColor.diffuse.xyz * color.xyz)

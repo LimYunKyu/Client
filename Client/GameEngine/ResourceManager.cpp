@@ -13,15 +13,15 @@ shared_ptr<Mesh> ResourceManager::LoadRectangleMesh()
 	float h2 = 0.5f;
 
 	vector<Vertex> vec(4);
-	vec=
+	vec =
 	{
-		{ XMFLOAT3(-1.0f, -1.0f, 0.f),XMFLOAT2(0.0f,1.0f), XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT3(1.0f, 0.0f, 0.0f)},
-		{ XMFLOAT3(-1.0f, +1.0f, 0.f),XMFLOAT2(0.0f,0.0f),XMFLOAT3(-1.0f, +1.0f, -1.0f), XMFLOAT3(1.0f, 0.0f, 0.0f) },
-		{ XMFLOAT3(+1.0f, +1.0f, 0.f),XMFLOAT2(1.0f,0.0f),XMFLOAT3(+1.0f, +1.0f, -1.0f), XMFLOAT3(1.0f, 0.0f, 0.0f) },
-		{ XMFLOAT3(+1.0f, -1.0f, 0.f),XMFLOAT2(1.0f,1.0f),XMFLOAT3(+1.0f, -1.0f, -1.0f), XMFLOAT3(1.0f, 0.0f, 0.0f) },
+		{ XMFLOAT3(-1.0f, -1.0f, 0.f),XMFLOAT2(0.0f,1.0f), XMFLOAT3(0.0f, 0.0f, -1.0f), XMFLOAT3(1.0f, 0.0f, 0.0f)},
+		{ XMFLOAT3(-1.0f, +1.0f, 0.f),XMFLOAT2(0.0f,0.0f),XMFLOAT3(0.0f, 0.0f, -1.0f), XMFLOAT3(1.0f, 0.0f, 0.0f) },
+		{ XMFLOAT3(+1.0f, +1.0f, 0.f),XMFLOAT2(1.0f,0.0f),XMFLOAT3(0.0f, 0.0f, -1.0f), XMFLOAT3(1.0f, 0.0f, 0.0f) },
+		{ XMFLOAT3(+1.0f, -1.0f, 0.f),XMFLOAT2(1.0f,1.0f),XMFLOAT3(0.0f, 0.0f, -1.0f), XMFLOAT3(1.0f, 0.0f, 0.0f) },
 	};
 
-	
+
 
 	vector<UINT32> idx(6);
 
@@ -106,7 +106,7 @@ shared_ptr<Mesh> ResourceManager::LoadCubeMesh()
 
 	shared_ptr<Mesh> mesh = make_shared<Mesh>();
 	mesh->CreateVertexBuffer(vertices);
-	mesh->CreateIndexBuffer(indices);		
+	mesh->CreateIndexBuffer(indices);
 	Add(L"Cube", mesh);
 
 	return mesh;
@@ -129,7 +129,7 @@ shared_ptr<Mesh> ResourceManager::LoadSphereMesh()
 	vector<Vertex> vec;
 
 	Vertex v;
-	
+
 	// ºÏ±Ø
 	v.Pos = XMFLOAT3(0.0f, radius, 0.0f);
 	Nomalize = { v.Pos.x,v.Pos.y,v.Pos.z };
@@ -239,6 +239,24 @@ shared_ptr<Mesh> ResourceManager::LoadSphereMesh()
 	return mesh;
 }
 
+shared_ptr<Texture> ResourceManager::CreateTexture(const wstring& name, DXGI_FORMAT format, UINT32 width, UINT32 height, XMFLOAT4 clearColor, D3D11_BIND_FLAG flag)
+{
+	shared_ptr<Texture> texture = make_shared<Texture>();
+	texture->CreateTexture(format, width, height, clearColor, flag);
+	Add(name, texture);
+
+	return texture;
+}
+
+shared_ptr<Texture> ResourceManager::CreateTextureFromResource(const wstring& name, ID3D11Texture2D* tex2D)
+{
+	shared_ptr<Texture> texture = make_shared<Texture>();
+	texture->CreateTextureFromResource(tex2D);
+	Add(name, texture);
+
+	return texture;
+}
+
 void ResourceManager::Initialize()
 {
 	CreateDefaultShader();
@@ -249,14 +267,19 @@ void ResourceManager::CreateDefaultShader()
 
 
 	{
-	 shared_ptr<Shader> shader = make_shared<Shader>(L"..\\FX\\forward.fx", "DefaultTech");
-	 Add<Shader>(L"Forward", shader);
-	
+		shared_ptr<Shader> shader = make_shared<Shader>(L"..\\FX\\forward.fx", "DefaultTech", SHADER_TYPE::FORWARD);
+		Add<Shader>(L"Forward", shader);
+
 
 	}
 
 	{
-	 shared_ptr<Shader> shader = make_shared<Shader>(L"..\\FX\\skybox.fx", "DefaultTech", RASTERIZER_TYPE::CULL_NONE, DEPTH_STENCIL_TYPE::LESS_EQUAL);
-	 Add<Shader>(L"Skybox", shader);
+		shared_ptr<Shader> shader = make_shared<Shader>(L"..\\FX\\skybox.fx", "DefaultTech", SHADER_TYPE::FORWARD, RASTERIZER_TYPE::CULL_NONE, DEPTH_STENCIL_TYPE::LESS_EQUAL);
+		Add<Shader>(L"Skybox", shader);
+	}
+
+	{
+		shared_ptr<Shader> shader = make_shared<Shader>(L"..\\FX\\deferred.fx", "DefaultTech", SHADER_TYPE::DEFERRED);
+		Add<Shader>(L"Deferred", shader);
 	}
 }

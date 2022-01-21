@@ -11,7 +11,7 @@ Mesh::~Mesh()
 
 	ReleaseCOM(mVertexBuffer);
 	ReleaseCOM(mIndexBuffer);
-	ReleaseCOM(mTech);
+	
 }
 
 void Mesh::Create(const vector<Vertex>& vertexBuffer, const vector<UINT>& indexBuffer)

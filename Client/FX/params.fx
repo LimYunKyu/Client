@@ -55,14 +55,19 @@ Texture2D g_tex_2;
 Texture2D g_tex_3;
 Texture2D g_tex_4;
 
+cbuffer LightInfoMation : register ( b0 )
+{
+    LightParams g_lightParams;
+};
 
 SamplerState samLinear : register(s0);
+
 
 
 cbuffer GLOBAL_PARAMS
 {
 
-    LightParams g_lightParams;
+   
     Transform_Params g_TransformParmas;
     Texture_On  g_Tex_On;
    
